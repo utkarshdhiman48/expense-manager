@@ -1,5 +1,5 @@
 import express from "express";
-import Transaction from "../models/transaction";
+import Transaction from "@/models/transaction";
 
 const router = express.Router();
 
