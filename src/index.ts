@@ -1,7 +1,7 @@
 import express from "express";
 import "dotenv/config";
-import connectDb from "./startup/db";
-import transactions from "./routes/transactions";
+import transactions from "@/routes/transactions";
+import connectDb from "@/startup/db";
 
 const PORT = process.env.PORT;
 const app = express();
