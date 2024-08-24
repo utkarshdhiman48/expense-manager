@@ -19,13 +19,13 @@ const TransactionSchema = new mongoose.Schema({
   title: { type: String, required: false },
   value: { type: Number, required: true },
   description: { type: String, required: false },
-  createdBy: { type: String, required: true },
+  createdBy: { type: mongoose.SchemaTypes.ObjectId, required: true },
   distribution: {
     type: [
       {
         amount: { type: Number, required: true },
         person: {
-          type: mongoose.Schema.Types.ObjectId,
+          type: mongoose.SchemaTypes.ObjectId,
           ref: "User",
         },
       },
