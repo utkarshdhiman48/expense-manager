@@ -3,7 +3,7 @@ import Joi from "joi";
 
 interface ITransaction {
   title?: string;
-  value: number;
+  amount: number;
   description?: string;
   createdBy: string;
   distribution?: {
@@ -17,7 +17,7 @@ interface ITransaction {
 
 const TransactionSchema = new mongoose.Schema({
   title: { type: String, required: false },
-  value: { type: Number, required: true },
+  amount: { type: Number, required: true },
   description: { type: String, required: false },
   createdBy: { type: mongoose.SchemaTypes.ObjectId, required: true },
   distribution: {
@@ -46,7 +46,7 @@ const TransactionSchema = new mongoose.Schema({
 export const validate = (transaction: ITransaction) => {
   const schema: Joi.ObjectSchema<ITransaction> = Joi.object().keys({
     title: Joi.string().allow(null, ""),
-    value: Joi.number().required(),
+    amount: Joi.number().required(),
     description: Joi.string().allow(null, ""),
     createdBy: Joi.string().required(),
     distribution: Joi.array()
