@@ -7,6 +7,7 @@ const PORT = process.env.PORT;
 const app = express();
 
 connectDb();
+app.use(express.json());
 app.use("/api/transactions", transactions);
 
 app.get("/", (req, res) => {
