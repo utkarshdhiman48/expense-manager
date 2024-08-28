@@ -57,7 +57,7 @@ export const validate = (transaction: ITransaction) => {
         })
       )
       .allow(null),
-    type: Joi.string().required(),
+    type: Joi.string().valid("inflow", "outflow").required(),
     createdAt: Joi.date().default(Date.now),
     updatedAt: Joi.date().default(Date.now),
   });

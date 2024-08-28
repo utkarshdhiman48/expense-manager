@@ -11,8 +11,6 @@ router.post("/", async (req, res) => {
   if (error) return res.status(400).send(error.details[0].message);
 
   const transaction = new Transaction({
-    createdAt: new Date(),
-    updatedAt: new Date(),
     createdBy: req.body.createdBy, // get current user id from jwt
     amount: req.body.amount,
     distribution: req.body.distribution,
