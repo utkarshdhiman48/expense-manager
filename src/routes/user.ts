@@ -18,16 +18,21 @@ router.post("/", async (req, res) => {
   if (userExists) return res.status(400).send("Email already in use");
 
   const hashedPassword = await hashPassword(req.body.password);
+
   const user = new User({
     email: req.body.email,
     phone: req.body.phone,
+    name: req.body.name,
     password: hashedPassword,
   });
 
   await user.save();
   const token = user.generateAuthToken();
 
-  res.header("x-auth-token", token).sendStatus(201);
+  res
+    .status(201)
+    .header("x-auth-token", token)
+    .json({ email: user.email, id: user._id, name: user.name });
 });
 
 export default router;
