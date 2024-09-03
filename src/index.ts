@@ -2,6 +2,7 @@ import express from "express";
 import "dotenv/config";
 import transactions from "@/routes/transactions";
 import user from "@/routes/user";
+import auth from "@/routes/auth";
 import connectDb from "@/startup/db";
 
 const PORT = process.env.PORT;
@@ -11,6 +12,7 @@ connectDb();
 app.use(express.json());
 app.use("/api/transactions", transactions);
 app.use("/api/user", user);
+app.use("/api/auth", auth);
 
 app.get("/", (req, res) => {
   res.send("You got it!");
