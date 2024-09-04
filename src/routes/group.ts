@@ -1,7 +1,16 @@
 import Group, { validate as validateGroup } from "@/models/group";
+import Transaction from "@/models/transaction";
 import express from "express";
 
 const router = express.Router();
+
+router.get("/:groupId/transactions", async (req, res) => {
+  const { groupId } = req.params;
+
+  const transactions = await Transaction.find({ groupId });
+
+  res.json(transactions);
+});
 
 router.post("/", async (req, res) => {
   const { error } = validateGroup(req.body);
