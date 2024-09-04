@@ -1,6 +1,7 @@
 import User, { validate as validateUser } from "@/models/user";
 import express from "express";
 import bcrypt from "bcrypt";
+import Transaction from "@/models/transaction";
 
 const router = express.Router();
 
@@ -9,6 +10,23 @@ async function hashPassword(password: string) {
   const hashedPassword = await bcrypt.hash(password, salt);
   return hashedPassword;
 }
+
+router.get("/:userId/transactions", async (req, res) => {
+  const { userId } = req.params;
+
+  let query = {};
+  if (req.query.onlyCreatedByMe === "true") {
+    query = { createdBy: userId };
+  } else {
+    query = {
+      $or: [{ createdBy: userId }, { "distribution.person": userId }],
+    };
+  }
+
+  const transactions = await Transaction.find(query);
+
+  res.json(transactions);
+});
 
 router.post("/", async (req, res) => {
   const { error } = validateUser(req.body);
