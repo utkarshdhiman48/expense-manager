@@ -3,6 +3,7 @@ import "dotenv/config";
 import transactions from "@/routes/transactions";
 import user from "@/routes/user";
 import auth from "@/routes/auth";
+import group from "@/routes/groups";
 import connectDb from "@/startup/db";
 
 const PORT = process.env.PORT;
@@ -13,6 +14,7 @@ app.use(express.json());
 app.use("/api/transactions", transactions);
 app.use("/api/user", user);
 app.use("/api/auth", auth);
+app.use("/api/group", group);
 
 app.get("/", (req, res) => {
   res.send("You got it!");
