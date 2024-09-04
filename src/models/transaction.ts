@@ -11,8 +11,8 @@ interface ITransaction {
     person: string;
   }[];
   type: string;
-  createdAt?: Date;
-  updatedAt?: Date;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 const TransactionSchema = new mongoose.Schema({
@@ -41,6 +41,7 @@ const TransactionSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  groupId: { type: mongoose.SchemaTypes.ObjectId, required: false },
 });
 
 export const validate = (transaction: ITransaction) => {
@@ -60,6 +61,7 @@ export const validate = (transaction: ITransaction) => {
     type: Joi.string().valid("inflow", "outflow").required(),
     createdAt: Joi.date().default(Date.now),
     updatedAt: Joi.date().default(Date.now),
+    groupId: Joi.string().allow(null, ""),
   });
   return schema.validate(transaction);
 };
