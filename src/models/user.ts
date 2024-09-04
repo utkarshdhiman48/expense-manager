@@ -1,13 +1,15 @@
 import mongoose from "mongoose";
 import Joi from "joi";
 import jwt from "jsonwebtoken";
+import { group } from "console";
 
 interface IUser {
   name: string;
   email: string;
   password: string;
   phone?: string;
-  createdAt?: Date;
+  createdAt: Date;
+  groups?: string[];
 }
 
 interface IUserMethods {
@@ -20,6 +22,11 @@ const UserSchema = new mongoose.Schema<IUser, {}, IUserMethods>({
   password: { type: String, required: true },
   phone: { type: String, required: false },
   createdAt: { type: Date, default: Date.now },
+  groups: {
+    type: [mongoose.SchemaTypes.ObjectId],
+    ref: "Group",
+    required: false,
+  },
 });
 
 UserSchema.methods.generateAuthToken = function () {
@@ -39,7 +46,9 @@ export const validate = (user: IUser) => {
     password: Joi.string().min(8).required(),
     phone: Joi.string().allow(null, ""),
     createdAt: Joi.date().default(Date.now),
+    groups: Joi.array().items(Joi.string()).allow(null, ""),
   });
+
   return schema.validate(user);
 };
 
