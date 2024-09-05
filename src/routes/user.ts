@@ -1,7 +1,14 @@
-import User, { validate as validateUser } from "@/models/user";
+import User, {
+  IUserTokenPaylaod,
+  validate as validateUser,
+} from "@/models/user";
 import express from "express";
 import bcrypt from "bcrypt";
 import Transaction from "@/models/transaction";
+import jwt from "jsonwebtoken";
+import Connection, {
+  validate as validateConnection,
+} from "@/models/connection";
 
 const router = express.Router();
 
@@ -51,6 +58,43 @@ router.post("/", async (req, res) => {
     .status(201)
     .header("x-auth-token", token)
     .json({ email: user.email, id: user._id, name: user.name });
+});
+
+router.post("/connect", async (req, res) => {
+  const { error } = validateConnection(req.body);
+  if (error) return res.status(400).send(error.details[0].message);
+
+  const token = req.headers["x-auth-token"] as string;
+  const senderUserId = (jwt.decode(token) as IUserTokenPaylaod).id;
+  const senderIsCreatingConnection =
+    senderUserId === req.body.user1 || senderUserId === req.body.user2;
+
+  if (!senderIsCreatingConnection) return res.status(401).send("Unauthorized");
+
+  const bothUsersExist =
+    (await User.countDocuments({
+      _id: { $in: [req.body.user1, req.body.user2] },
+    })) === 2;
+  if (!bothUsersExist) return res.status(404).send("User not found");
+
+  const connectionAlreadyExists = await Connection.findOne({
+    $or: [
+      { user1: req.body.user1, user2: req.body.user2 },
+      { user1: req.body.user2, user2: req.body.user1 },
+    ],
+  });
+
+  if (connectionAlreadyExists)
+    return res.status(400).send("Connection already exists");
+
+  const connection = new Connection({
+    user1: req.body.user1,
+    user2: req.body.user2,
+  });
+
+  await connection.save();
+
+  return res.status(201).json({ id: connection._id });
 });
 
 export default router;

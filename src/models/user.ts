@@ -1,7 +1,6 @@
 import mongoose from "mongoose";
 import Joi from "joi";
 import jwt from "jsonwebtoken";
-import { group } from "console";
 
 interface IUser {
   name: string;
@@ -14,6 +13,13 @@ interface IUser {
 
 interface IUserMethods {
   generateAuthToken(): string;
+}
+
+export interface IUserTokenPaylaod {
+  name: string;
+  email: string;
+  id: mongoose.Types.ObjectId;
+  phone?: string;
 }
 
 const UserSchema = new mongoose.Schema<IUser, {}, IUserMethods>({
@@ -30,10 +36,13 @@ const UserSchema = new mongoose.Schema<IUser, {}, IUserMethods>({
 });
 
 UserSchema.methods.generateAuthToken = function () {
-  const token = jwt.sign(
-    { name: this.name, email: this.email, id: this._id, phone: this.phone },
-    process.env.JWT_SECRET_KEY as string
-  );
+  const payload: IUserTokenPaylaod = {
+    name: this.name,
+    email: this.email,
+    id: this._id,
+    phone: this.phone,
+  };
+  const token = jwt.sign(payload, process.env.JWT_SECRET_KEY as string);
   return token;
 };
 
