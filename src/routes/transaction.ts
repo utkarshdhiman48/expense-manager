@@ -8,7 +8,7 @@ const router = express.Router();
 router.post("/", async (req, res) => {
   const { error } = validateTransaction(req.body);
 
-  if (error) return res.status(400).send(error.details[0].message);
+  if (error) return res.status(400).send(error.message);
 
   const transaction = new Transaction({
     createdBy: req.body.createdBy, // get current user id from jwt
