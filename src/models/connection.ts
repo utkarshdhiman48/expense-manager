@@ -27,9 +27,10 @@ const Connection = mongoose.model("Connection", ConnectionSchema);
 export function validate(connection: IConnection) {
   const schema = Joi.object({
     user1: Joi.string().required(),
-    user2: Joi.string().required().valid(Joi.ref("user1")).messages({
-      "any.only": "user1 and user2 must be distinct",
-    }),
+    user2: Joi.string()
+      .required()
+      .not(Joi.ref("user1"))
+      .error(new Error("User1 and User2 must be different")),
   });
 
   return schema.validate(connection);

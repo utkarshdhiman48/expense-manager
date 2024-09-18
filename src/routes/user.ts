@@ -37,7 +37,7 @@ router.get("/:userId/transactions", async (req, res) => {
 
 router.post("/", async (req, res) => {
   const { error } = validateUser(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+  if (error) return res.status(400).send(error.message);
 
   const userExists = await User.findOne({ email: req.body.email });
   if (userExists) return res.status(400).send("Email already in use");
@@ -61,26 +61,23 @@ router.post("/", async (req, res) => {
 });
 
 router.post("/connect", async (req, res) => {
-  const { error } = validateConnection(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
-
   const token = req.headers["x-auth-token"] as string;
   const senderUserId = (jwt.decode(token) as IUserTokenPaylaod).id;
-  const senderIsCreatingConnection =
-    senderUserId === req.body.user1 || senderUserId === req.body.user2;
+  const payload = { user1: req.body.user, user2: senderUserId };
 
-  if (!senderIsCreatingConnection) return res.status(401).send("Unauthorized");
+  const { error } = validateConnection(payload);
+  if (error) return res.status(400).send(error.message);
 
   const bothUsersExist =
     (await User.countDocuments({
-      _id: { $in: [req.body.user1, req.body.user2] },
+      _id: { $in: [req.body.user, senderUserId] },
     })) === 2;
   if (!bothUsersExist) return res.status(404).send("User not found");
 
   const connectionAlreadyExists = await Connection.findOne({
     $or: [
-      { user1: req.body.user1, user2: req.body.user2 },
-      { user1: req.body.user2, user2: req.body.user1 },
+      { user1: req.body.user, user2: senderUserId },
+      { user1: senderUserId, user2: req.body.user },
     ],
   });
 
@@ -88,8 +85,8 @@ router.post("/connect", async (req, res) => {
     return res.status(400).send("Connection already exists");
 
   const connection = new Connection({
-    user1: req.body.user1,
-    user2: req.body.user2,
+    user1: req.body.user,
+    user2: senderUserId,
   });
 
   await connection.save();

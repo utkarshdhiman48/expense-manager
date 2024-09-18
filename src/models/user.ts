@@ -18,7 +18,7 @@ interface IUserMethods {
 export interface IUserTokenPaylaod {
   name: string;
   email: string;
-  id: mongoose.Types.ObjectId;
+  id: string;
   phone?: string;
 }
 
@@ -39,7 +39,7 @@ UserSchema.methods.generateAuthToken = function () {
   const payload: IUserTokenPaylaod = {
     name: this.name,
     email: this.email,
-    id: this._id,
+    id: this._id.toString(),
     phone: this.phone,
   };
   const token = jwt.sign(payload, process.env.JWT_SECRET_KEY as string);
