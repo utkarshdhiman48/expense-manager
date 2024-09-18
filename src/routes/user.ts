@@ -1,7 +1,14 @@
-import User, { validate as validateUser } from "@/models/user";
+import User, {
+  IUserTokenPaylaod,
+  validate as validateUser,
+} from "@/models/user";
 import express from "express";
 import bcrypt from "bcrypt";
 import Transaction from "@/models/transaction";
+import jwt from "jsonwebtoken";
+import Connection, {
+  validate as validateConnection,
+} from "@/models/connection";
 
 const router = express.Router();
 
@@ -30,7 +37,7 @@ router.get("/:userId/transactions", async (req, res) => {
 
 router.post("/", async (req, res) => {
   const { error } = validateUser(req.body);
-  if (error) return res.status(400).send(error.details[0].message);
+  if (error) return res.status(400).send(error.message);
 
   const userExists = await User.findOne({ email: req.body.email });
   if (userExists) return res.status(400).send("Email already in use");
@@ -51,6 +58,40 @@ router.post("/", async (req, res) => {
     .status(201)
     .header("x-auth-token", token)
     .json({ email: user.email, id: user._id, name: user.name });
+});
+
+router.post("/connect", async (req, res) => {
+  const token = req.headers["x-auth-token"] as string;
+  const senderUserId = (jwt.decode(token) as IUserTokenPaylaod).id;
+  const payload = { user1: req.body.user, user2: senderUserId };
+
+  const { error } = validateConnection(payload);
+  if (error) return res.status(400).send(error.message);
+
+  const bothUsersExist =
+    (await User.countDocuments({
+      _id: { $in: [req.body.user, senderUserId] },
+    })) === 2;
+  if (!bothUsersExist) return res.status(404).send("User not found");
+
+  const connectionAlreadyExists = await Connection.findOne({
+    $or: [
+      { user1: req.body.user, user2: senderUserId },
+      { user1: senderUserId, user2: req.body.user },
+    ],
+  });
+
+  if (connectionAlreadyExists)
+    return res.status(400).send("Connection already exists");
+
+  const connection = new Connection({
+    user1: req.body.user,
+    user2: senderUserId,
+  });
+
+  await connection.save();
+
+  return res.status(201).json({ id: connection._id });
 });
 
 export default router;
