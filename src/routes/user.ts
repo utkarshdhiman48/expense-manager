@@ -94,4 +94,24 @@ router.post("/connect", async (req, res) => {
   return res.status(201).json({ id: connection._id });
 });
 
+router.get("/:userId/connections", async (req, res) => {
+  const { userId } = req.params;
+
+  const connectionTuples = await Connection.find({
+    $or: [{ user1: userId }, { user2: userId }],
+  }).populate({
+    path: "user1 user2",
+    match: {
+      _id: { $ne: userId },
+    },
+    select: "name email phone",
+  });
+
+  const connections = connectionTuples.map(
+    (connection) => connection.user1 || connection.user2
+  );
+
+  res.json(connections);
+});
+
 export default router;
