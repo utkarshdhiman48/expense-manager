@@ -33,8 +33,6 @@ router.patch("/:transactionId", async (req, res) => {
 
   const token = req.headers["x-auth-token"] as string;
   const userId = (jwt.decode(token) as IUserTokenPaylaod).id;
-  if (userId !== req.body.createdBy)
-    return res.status(400).send("Invalid user");
 
   const updatedTransaction = await Transaction.findOneAndUpdate(
     {
@@ -42,7 +40,11 @@ router.patch("/:transactionId", async (req, res) => {
       $or: [{ createdBy: userId }, { "distribution.person": userId }],
     },
     {
-      $set: req.body,
+      $set: {
+        ...req.body,
+        updatedBy: userId,
+        updatedAt: new Date(),
+      },
     },
     {
       new: true,
