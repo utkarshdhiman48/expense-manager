@@ -108,7 +108,7 @@ export const validateUpdateTransaction = (transaction: IUpdateTransaction) => {
         })
       )
       .allow(null),
-    type: Joi.string().valid("inflow", "outflow").required(),
+    type: Joi.string().valid("inflow", "outflow"),
     updatedAt: Joi.date().default(Date.now),
     updatedBy: Joi.string().allow(null, ""),
     groupId: Joi.string().allow(null, ""),
