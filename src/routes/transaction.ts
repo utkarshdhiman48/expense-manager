@@ -56,4 +56,19 @@ router.patch("/:transactionId", async (req, res) => {
   res.json(updatedTransaction);
 });
 
+router.delete("/:transactionId", async (req, res) => {
+  const token = req.headers["x-auth-token"] as string;
+  const userId = (jwt.decode(token) as IUserTokenPaylaod).id;
+
+  const result = await Transaction.deleteOne({
+    _id: req.params.transactionId,
+    $or: [{ createdBy: userId }, { "distribution.person": userId }],
+  });
+
+  if (result.deletedCount === 0)
+    return res.status(404).send("Transaction not found");
+
+  res.status(200).send("Transaction deleted");
+});
+
 export default router;
