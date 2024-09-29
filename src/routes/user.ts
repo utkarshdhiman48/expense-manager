@@ -114,4 +114,17 @@ router.get("/:userId/connections", async (req, res) => {
   res.json(connections);
 });
 
+router.delete("/:userId", async (req, res) => {
+  const token = req.headers["x-auth-token"] as string;
+  const userId = (jwt.decode(token) as IUserTokenPaylaod).id;
+
+  if (userId !== req.params.userId) return res.status(401).send("Unauthorized");
+
+  const result = await User.findByIdAndDelete(req.params.userId);
+
+  if (!result) return res.status(404).send("User not found");
+
+  res.send("User deleted");
+});
+
 export default router;
