@@ -74,6 +74,7 @@ router.patch("/:userId", async (req, res) => {
 
   const result = await User.findByIdAndUpdate(userId, req.body, {
     new: true,
+    projection: { password: 0 },
   });
   if (!result) return res.status(404).send("User not found");
 
