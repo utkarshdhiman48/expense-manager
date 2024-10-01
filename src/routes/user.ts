@@ -1,5 +1,6 @@
 import User, {
   IUserTokenPaylaod,
+  validateUpdateUser,
   validate as validateUser,
 } from "@/models/user";
 import express from "express";
@@ -58,6 +59,25 @@ router.post("/", async (req, res) => {
     .status(201)
     .header("x-auth-token", token)
     .json({ email: user.email, id: user._id, name: user.name });
+});
+
+router.patch("/:userId", async (req, res) => {
+  const { userId } = req.params;
+
+  const token = req.headers["x-auth-token"] as string;
+  const payload = jwt.decode(token) as IUserTokenPaylaod;
+
+  if (userId !== payload.id) return res.status(401).send("Unauthorized");
+
+  const { error } = validateUpdateUser(req.body);
+  if (error) return res.status(400).send(error.message);
+
+  const result = await User.findByIdAndUpdate(userId, req.body, {
+    new: true,
+  });
+  if (!result) return res.status(404).send("User not found");
+
+  res.json(result);
 });
 
 router.post("/connect", async (req, res) => {

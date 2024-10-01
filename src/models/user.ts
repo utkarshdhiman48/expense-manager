@@ -54,8 +54,17 @@ export const validate = (user: IUser) => {
     email: Joi.string().email().required(),
     password: Joi.string().min(8).required(),
     phone: Joi.string().allow(null, ""),
-    createdAt: Joi.date().default(Date.now),
     groups: Joi.array().items(Joi.string()).allow(null, ""),
+  });
+
+  return schema.validate(user);
+};
+
+export const validateUpdateUser = (user: IUser) => {
+  const schema: Joi.ObjectSchema<IUser> = Joi.object().keys({
+    name: Joi.string(),
+    email: Joi.string().email(),
+    phone: Joi.string().allow(null, ""),
   });
 
   return schema.validate(user);
