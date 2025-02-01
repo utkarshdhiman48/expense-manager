@@ -26,7 +26,7 @@ router.post("/", async (req, res) => {
   res.status(201).json({ id: group._id, name: group.name });
 });
 
-router.put("/:groupId/name", async (req, res) => {
+router.patch("/:groupId/name", async (req, res) => {
   const { error } = validateUpdateGroupName(req.body);
   if (error) return res.status(400).send(error.message);
 
@@ -47,7 +47,7 @@ router.put("/:groupId/name", async (req, res) => {
   res.json(group);
 });
 
-router.put("/:groupId/members", async (req, res) => {
+router.patch("/:groupId/members", async (req, res) => {
   const { error } = validateUpdateGroupName(req.body);
   if (error) return res.status(400).send(error.message);
 
