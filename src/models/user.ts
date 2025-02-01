@@ -1,6 +1,7 @@
 import mongoose from "mongoose";
 import Joi from "joi";
 import jwt from "jsonwebtoken";
+import { Request } from "express";
 
 interface IUser {
   name: string;
@@ -68,6 +69,13 @@ export const validateUpdateUser = (user: IUser) => {
   });
 
   return schema.validate(user);
+};
+
+export const extractUserId = (req: Request) => {
+  const token = req.headers["x-auth-token"] as string;
+  const userId = (jwt.decode(token) as IUserTokenPaylaod).id;
+
+  return userId;
 };
 
 export default User;

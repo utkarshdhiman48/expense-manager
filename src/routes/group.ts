@@ -3,7 +3,7 @@ import Group, {
   validateUpdateGroupName,
 } from "@/models/group";
 import Transaction from "@/models/transaction";
-import { IUserTokenPaylaod } from "@/models/user";
+import { extractUserId, IUserTokenPaylaod } from "@/models/user";
 import jwt from "jsonwebtoken";
 import express from "express";
 
@@ -30,8 +30,7 @@ router.patch("/:groupId/name", async (req, res) => {
   const { error } = validateUpdateGroupName(req.body);
   if (error) return res.status(400).send(error.message);
 
-  const token = req.headers["x-auth-token"] as string;
-  const userId = (jwt.decode(token) as IUserTokenPaylaod).id;
+  const userId = extractUserId(req);
 
   const group = await Group.findOneAndUpdate(
     {
@@ -51,8 +50,7 @@ router.patch("/:groupId/members", async (req, res) => {
   const { error } = validateUpdateGroupName(req.body);
   if (error) return res.status(400).send(error.message);
 
-  const token = req.headers["x-auth-token"] as string;
-  const userId = (jwt.decode(token) as IUserTokenPaylaod).id;
+  const userId = extractUserId(req);
 
   const group = await Group.findOneAndUpdate(
     {
