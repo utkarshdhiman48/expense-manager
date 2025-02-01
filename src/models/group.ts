@@ -46,20 +46,13 @@ export function validate(group: IGroup) {
   return schema.validate(group);
 }
 
-export function validateUpdateGroupName(group: IGroup) {
-  const schema: Joi.ObjectSchema<IGroup> = Joi.object().keys({
-    name: Joi.string(),
-    updatedAt: Joi.date().default(Date.now),
-  });
-
-  return schema.validate(group);
-}
-
-export function validateUpdateGroupMembers(group: IGroup) {
-  const schema: Joi.ObjectSchema<IGroup> = Joi.object().keys({
-    members: Joi.array().items(Joi.string()).required(),
-    updatedAt: Joi.date().default(Date.now),
-  });
+export function validateUpdateGroup(group: IGroup) {
+  const schema: Joi.ObjectSchema<IGroup> = Joi.object()
+    .keys({
+      name: Joi.string().optional(),
+      members: Joi.array().items(Joi.string()).optional(),
+    })
+    .or("name", "members");
 
   return schema.validate(group);
 }
