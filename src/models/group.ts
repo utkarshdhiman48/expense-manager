@@ -46,6 +46,17 @@ export function validate(group: IGroup) {
   return schema.validate(group);
 }
 
+export function validateUpdateGroup(group: IGroup) {
+  const schema: Joi.ObjectSchema<IGroup> = Joi.object()
+    .keys({
+      name: Joi.string().optional(),
+      members: Joi.array().items(Joi.string()).optional(),
+    })
+    .or("name", "members");
+
+  return schema.validate(group);
+}
+
 const Group = mongoose.model("Group", GroupSchema);
 
 export default Group;

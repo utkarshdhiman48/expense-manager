@@ -4,7 +4,7 @@ import Transaction, {
   validateUpdateTransaction,
 } from "@/models/transaction";
 import jwt from "jsonwebtoken";
-import { IUserTokenPaylaod } from "@/models/user";
+import { extractUserId, IUserTokenPaylaod } from "@/models/user";
 
 const router = express.Router();
 
@@ -31,8 +31,7 @@ router.patch("/:transactionId", async (req, res) => {
   const { error } = validateUpdateTransaction(req.body);
   if (error) return res.status(400).send(error.message);
 
-  const token = req.headers["x-auth-token"] as string;
-  const userId = (jwt.decode(token) as IUserTokenPaylaod).id;
+  const userId = extractUserId(req);
 
   const updatedTransaction = await Transaction.findOneAndUpdate(
     {
@@ -57,8 +56,7 @@ router.patch("/:transactionId", async (req, res) => {
 });
 
 router.delete("/:transactionId", async (req, res) => {
-  const token = req.headers["x-auth-token"] as string;
-  const userId = (jwt.decode(token) as IUserTokenPaylaod).id;
+  const userId = extractUserId(req);
 
   const result = await Transaction.deleteOne({
     _id: req.params.transactionId,
