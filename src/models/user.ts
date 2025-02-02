@@ -73,7 +73,7 @@ export const validateUpdateUser = (user: IUser) => {
 
 export const extractUserId = (req: Request) => {
   const token = req.headers["x-auth-token"] as string;
-  const userId = (jwt.decode(token) as IUserTokenPaylaod).id;
+  const userId = (jwt.decode(token) as IUserTokenPaylaod)?.id;
 
   return userId;
 };

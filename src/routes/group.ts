@@ -5,6 +5,7 @@ import Group, {
 import Transaction from "@/models/transaction";
 import { extractUserId } from "@/models/user";
 import express from "express";
+import mongoose from "mongoose";
 
 const router = express.Router();
 
@@ -57,6 +58,47 @@ router.patch("/:groupId", async (req, res) => {
   if (group === null) return res.status(404).send("Group not found");
 
   res.json(group);
+});
+
+router.delete("/:groupId", async (req, res) => {
+  const userId = extractUserId(req);
+  const deleteTransactions = req.query["delete-transactions"] === "true";
+
+  const group = await Group.findOne({
+    _id: req.params.groupId,
+    members: userId,
+  });
+  console.log(userId, req.params.groupId, group);
+
+  if (group === null) return res.status(401).send("Unauthorized");
+
+  const session = await mongoose.startSession();
+  try {
+    await session.withTransaction(async () => {
+      if (deleteTransactions) {
+        await Transaction.deleteMany(
+          { groupId: req.params.groupId },
+          { session }
+        );
+      } else {
+        await Transaction.updateMany(
+          { groupId: req.params.groupId },
+          { $set: { groupId: null } },
+          { session }
+        );
+      }
+
+      await Group.findByIdAndDelete(req.params.groupId, { session });
+    });
+  } catch (error) {
+    await session.abortTransaction();
+    await session.endSession();
+    return res.status(500).send("An error occurred while deleting the group");
+  } finally {
+    await session.endSession();
+  }
+
+  res.send("Group deleted");
 });
 
 export default router;
