@@ -1,0 +1,8 @@
+{
+  "recommendations": [
+    "bierner.markdown-mermaid",
+    "mongodb.mongodb-vscode",
+    "postman.postman-for-vscode",
+    "esbenp.prettier-vscode"
+  ]
+}
